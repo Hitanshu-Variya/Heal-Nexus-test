@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config=jest.config.json",
-    "test-debug": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config=jest.config.json --detectOpenHandles"
+    "test-debug": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config=jest.config.json --detectOpenHandles",
+    "build": "mkdir -p dist && cp -r src public api data Nodemailer Utilites middleware dist/",
+    "start": "node src/index.js"
   },
   "type": "module",
   "keywords": [],
