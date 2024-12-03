@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: healnexus-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./build
+    headers:
+      - source: /**
+        headers:
+          - key: Cache-Control
+            value: public, max-age=0, must-revalidate
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_ENV
+        value: production
