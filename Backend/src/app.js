@@ -18,7 +18,8 @@ const app = express();
 const allowedOrigins = [
   process.env.CLIENT_URL,
   'https://frontend-domain.com',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'https://healnexus.onrender.com'
 ];
 
 const corsOptions = {
