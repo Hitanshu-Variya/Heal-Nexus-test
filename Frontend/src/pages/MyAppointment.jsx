@@ -3,10 +3,12 @@ import Modal from 'react-modal';
 import { toast } from 'react-toastify';
 import { Appbar } from './dashBoard';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 Modal.setAppElement('#root'); 
 
 const MyAppointments = () => {
+  const navigate = useNavigate();
   const [patientAppointmentData, setPatientAppointmentData] = useState([]);
 
   useEffect(() => {
@@ -102,6 +104,15 @@ const MyAppointments = () => {
     }
   };
 
+  const handlePayOffline = (item) => {
+    navigate('/payment-dashboard', { 
+      state: { 
+        appointmentData: item.appointmentData,
+        doctorData: item.doctorData
+      }
+    });
+  };
+
   return (
     <div><Appbar/>
     <div className="mx-20">
@@ -133,7 +144,7 @@ const MyAppointments = () => {
             <div className="flex flex-col gap-2 justify-end">
               {!item.appointmentData.cancel && !item.appointmentData.payment && (
                 <button
-                  onClick={() => openModal(item, 'book')}
+                  onClick={() => handlePayOffline(item)}
                   className="text-sm text-stone-500 text-center min-w-48 py-2 border rounded hover:bg-primary hover:text-white transition-all duration-300"
                 >
                   Pay Offline
