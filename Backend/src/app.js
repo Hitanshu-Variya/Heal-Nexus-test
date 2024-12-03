@@ -55,6 +55,10 @@ app.use("/appointment", appointmentroutes);
 app.use("/patient", patientroutes);
 app.use("/", Filterroutes);
 
+app.get('/', (req, res) => {
+  res.send('Backend is running!');
+});
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
