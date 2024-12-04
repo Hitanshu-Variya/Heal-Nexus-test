@@ -2,6 +2,58 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { z } from 'zod';
+
+export const patientSchema = z.object({
+  age: z
+    .string()
+    .regex(/^\d+$/, { message: "Age must be a number" })
+    .refine((val) => parseInt(val) > 0, { message: "Age must be a positive number" }),
+  
+  gender: z.enum(["Male", "Female"], { message: "Gender must be either 'Male' or 'Female'" }),
+  
+  contactNumber: z
+    .string()
+    .length(10, { message: "Contact number must be exactly 10 digits" })
+    .regex(/^\d+$/, { message: "Contact number must be numeric" }),
+  
+  emergencyContact: z.object({
+    name: z
+      .string()
+      .min(3, { message: "Emergency contact name must be at least 3 characters long" }),
+    relationship: z
+      .string()
+      .min(3, { message: "Relationship must be at least 3 characters long" }),
+    contactNumber: z
+      .string()
+      .length(10, { message: "Emergency contact number must be exactly 10 digits" })
+      .regex(/^\d+$/, { message: "Emergency contact number must be numeric" }),
+  }),
+
+  address: z.object({
+    street: z
+      .string()
+      .min(3, { message: "Street address must be at least 3 characters long" }),
+    city: z
+      .string()
+      .min(3, { message: "City must be at least 3 characters long" }),
+    state: z
+      .string()
+      .min(3, { message: "State must be at least 3 characters long" }),
+    postalCode: z
+      .string()
+      .length(6, { message: "Postal Code must be exactly 6 digits" })
+      .regex(/^\d+$/, { message: "Postal Code must be numeric" }),
+    country: z
+      .string()
+      .min(1, { message: "Country is required" }),
+  }),
+
+  medicalHistory: z
+    .string()
+    .min(1, { message: "Medical history is required" }),
+
+});
 
 export default function PatientProfile() {
   const navigate = useNavigate();
@@ -55,42 +107,54 @@ export default function PatientProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-    const formData = new FormData();
-    formData.append("age", userDetails.age);
-    formData.append("gender", userDetails.gender);
-    formData.append("contactNumber", userDetails.contactNumber);
-    formData.append("medicalHistory", userDetails.medicalHistory);
-    formData.append("emergencyContact[name]", userDetails.emergencyContact.name);
-    formData.append("emergencyContact[relationship]", userDetails.emergencyContact.relationship);
-    formData.append("emergencyContact[contactNumber]", userDetails.emergencyContact.contactNumber);
-    formData.append("address[street]", userDetails.address.street);
-    formData.append("address[city]", userDetails.address.city);
-    formData.append("address[state]", userDetails.address.state);
-    formData.append("address[postalCode]", userDetails.address.postalCode);
-    formData.append("address[country]", userDetails.address.country);
-    if (docImg) {
-      formData.append("image", docImg);
-    }
-
+  
+    // Perform validation using Zod
     try {
+      // Validate userDetails against the schema
+      patientSchema.parse(userDetails);
+  
+      const formData = new FormData();
+      formData.append("age", userDetails.age);
+      formData.append("gender", userDetails.gender);
+      formData.append("contactNumber", userDetails.contactNumber);
+      formData.append("medicalHistory", userDetails.medicalHistory);
+      formData.append("emergencyContact[name]", userDetails.emergencyContact.name);
+      formData.append("emergencyContact[relationship]", userDetails.emergencyContact.relationship);
+      formData.append("emergencyContact[contactNumber]", userDetails.emergencyContact.contactNumber);
+      formData.append("address[street]", userDetails.address.street);
+      formData.append("address[city]", userDetails.address.city);
+      formData.append("address[state]", userDetails.address.state);
+      formData.append("address[postalCode]", userDetails.address.postalCode);
+      formData.append("address[country]", userDetails.address.country);
+      if (docImg) {
+        formData.append("image", docImg);
+      }
+  
+      // Perform the API request
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER_URL}/profile/create-patient`,
         formData,
         { withCredentials: true }
       );
+  
       if (response.status === 201) {
         navigate("/login");
       }
-    } catch (error_) {
-      console.error("Error logging in:", error_.response?.data || error_.message);
-      const error = error_.response?.data?.error || "An error occurred. Please try again.";
-      toast.error(error);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        // Handle validation error
+        error.errors.forEach((err) => {
+          toast.error(`${err.message}`);
+        });
+      } else {
+        // Handle other errors
+        console.error("Error:", error.response?.data || error.message);
+        toast.error("An error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <form
       onSubmit={handleSubmit}
