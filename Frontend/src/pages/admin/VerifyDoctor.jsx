@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const UnverifiedDoctor = () => {
   const [unverifiedDoctors, setUnverifiedDoctors] = useState([]); // Initialize as an empty array
-  const [selectedDoctor, setSelectedDoctor] = useState(null); 
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
 
   useEffect(() => {
     const fetchDoctorData = async () => {
@@ -76,22 +76,54 @@ const UnverifiedDoctor = () => {
           <div className="m-5">
             <h1 className="text-lg font-medium">Doctor Profile</h1>
             <div className="border border-indigo-200 rounded-xl p-4 max-w-md">
-              <img className="bg-indigo-50" src={selectedDoctor.image} alt="doctor" />
-              <div className="pt-4">
-                <p className="text-neutral-800 text-lg font-medium">{selectedDoctor.userData.userName}</p>
-                <p className="text-zinc-600 text-sm">{selectedDoctor.userData.email}</p>
-                <p className="text-zinc-600 text-sm">{selectedDoctor.contactNumber}</p>
-                <p className="text-zinc-600 text-sm">{selectedDoctor.specialty}</p>
-                <p className="text-zinc-600 text-sm">{selectedDoctor.qualifications}</p>
-                <p className="text-zinc-600 text-sm">{selectedDoctor.experience}</p>
-                <p className="text-zinc-600 text-sm">{selectedDoctor.consultationFee}</p>
-                <p className="text-zinc-600 text-sm">{selectedDoctor.clinicAddress.street}</p>
-                <p className="text-zinc-600 text-sm">{selectedDoctor.clinicAddress.city}</p>
-                <p className="text-zinc-600 text-sm">{selectedDoctor.clinicAddress.state}</p>
-                <p className="text-zinc-600 text-sm">{selectedDoctor.clinicAddress.country}</p>
-                <p className="text-zinc-600 text-sm">{selectedDoctor.clinicAddress.postalCode}</p>
-                <p className="text-zinc-600 text-sm">{selectedDoctor.biography}</p>
+              <img
+                className="bg-indigo-50 w-full h-48 object-cover rounded-lg"
+                src={selectedDoctor.image}
+                alt="doctor"
+              />
+
+              <div className="pt-4 space-y-2">
+                <p className="text-neutral-800 text-lg font-medium">
+                  <strong>Name:</strong> {selectedDoctor.userData.userName}
+                </p>
+                <p className="text-zinc-600 text-sm">
+                  <strong>Email:</strong> {selectedDoctor.userData.email}
+                </p>
+                <p className="text-zinc-600 text-sm">
+                  <strong>Contact Number:</strong> {selectedDoctor.contactNumber}
+                </p>
+                <p className="text-zinc-600 text-sm">
+                  <strong>Specialty:</strong> {selectedDoctor.specialty}
+                </p>
+                <p className="text-zinc-600 text-sm">
+                  <strong>Qualifications:</strong> {selectedDoctor.qualifications}
+                </p>
+                <p className="text-zinc-600 text-sm">
+                  <strong>Experience:</strong> {selectedDoctor.experience}
+                </p>
+                <p className="text-zinc-600 text-sm">
+                  <strong>Consultation Fee:</strong> {selectedDoctor.consultationFee}
+                </p>
+                <p className="text-zinc-600 text-sm">
+                  <strong>Street Address:</strong> {selectedDoctor.clinicAddress.street}
+                </p>
+                <p className="text-zinc-600 text-sm">
+                  <strong>City:</strong> {selectedDoctor.clinicAddress.city}
+                </p>
+                <p className="text-zinc-600 text-sm">
+                  <strong>State:</strong> {selectedDoctor.clinicAddress.state}
+                </p>
+                <p className="text-zinc-600 text-sm">
+                  <strong>Country:</strong> {selectedDoctor.clinicAddress.country}
+                </p>
+                <p className="text-zinc-600 text-sm">
+                  <strong>Postal Code:</strong> {selectedDoctor.clinicAddress.postalCode}
+                </p>
+                <p className="text-zinc-600 text-sm">
+                  <strong>Biography:</strong> {selectedDoctor.biography}
+                </p>
               </div>
+
               <div className="mt-4">
                 <button
                   style={{ color: 'white', backgroundColor: 'green', marginRight: '10px', width: '70px', height: '35px' }}
@@ -130,11 +162,11 @@ const UnverifiedDoctor = () => {
             {unverifiedDoctors.length > 0 ? (
               unverifiedDoctors.map((item, index) => (
                 <div
-                  className="border border-indigo-200 rounded-xl max-w-56 overflow-hidden cursor-pointer group"
+                  className="border border-indigo-200 rounded-xl max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl overflow-hidden cursor-pointer group"
                   key={index}
                 >
                   <img
-                    className="bg-indigo-50 group-hover:bg-primary transition-all duration-500"
+                    className="bg-indigo-50 group-hover:bg-primary transition-all duration-500 w-full h-48 object-cover"
                     src={item.image}
                     alt="doctor"
                   />
@@ -144,7 +176,7 @@ const UnverifiedDoctor = () => {
                     <div className="mt-2 flex items-center gap-1 text-sm">
                       <button
                         style={{ color: 'white', backgroundColor: 'blue', width: '70px', height: '35px' }}
-                        onClick={() => showDoctorProfile(item)} 
+                        onClick={() => showDoctorProfile(item)}
                       >
                         Checkout
                       </button>
@@ -155,6 +187,7 @@ const UnverifiedDoctor = () => {
             ) : (
               <p>No unverified doctors found.</p>
             )}
+
           </div>
         </div>
       </div>

@@ -39,9 +39,7 @@ const Navbar = () => {
     }
   };
 
-  const toggleProfileDropdown = () => {
-    setShowProfileDropdown(!showProfileDropdown);
-  };
+ 
 
   return (
     <div className="flex justify-between py-3 items-center px-10 border-b bg-white">
@@ -50,9 +48,9 @@ const Navbar = () => {
         <img className="w-40 cursor-pointer" src='/assets/heal_logo.png' alt="Logo" />
         <div>
           <p className="text-3xl font-bold">Heal Nexus</p>
-          <p className="mt-1 border px-2.5 py-0.5 rounded-full border-gray-500 text-gray-600 text-center">
+          <button onClick={() => navigate('/doctor-dashboard')} className="mt-1 border px-2.5 py-0.5 rounded-full border-gray-500 text-gray-600 text-center cursor-pointer">
             Doctor
-          </p>
+          </button>
         </div>
       </div>
 
@@ -66,7 +64,7 @@ const Navbar = () => {
 
         <div
           className="flex items-center cursor-pointer gap-2"
-          onClick={toggleProfileDropdown}
+          onClick={(e) => { navigate('/myprofile-doctor') }}
         >
           <img
             src='/assets/doctor_icon.svg'
