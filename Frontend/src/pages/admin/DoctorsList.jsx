@@ -57,10 +57,11 @@ const DoctorsList = () => {
                 key={index}
               >
                 <img
-                  className="bg-indigo-50 group-hover:bg-primary transition-all duration-500"
+                  className="w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 object-cover rounded bg-indigo-50 group-hover:bg-primary transition-all duration-500"
                   src={item.image}
                   alt={`Image of ${item.userData ? item.userData.userName : 'Unknown'}`}
                 />
+
                 <div className='p-4'>
                   <p className='text-neutral-800 text-lg font-medium'>
                     {item.userData ? item.userData.userName : 'Unknown User'}
