@@ -99,6 +99,29 @@ export default function DoctorProfile() {
     }));
   };
 
+  const handleQualificationChange = (index, value) => {
+    const newQualifications = [...doctorDetails.qualifications];
+    newQualifications[index] = value;
+    setDoctorDetails(prevDetails => ({
+      ...prevDetails,
+      qualifications: newQualifications
+    }));
+  };
+
+  const addQualification = () => {
+    setDoctorDetails(prevDetails => ({
+      ...prevDetails,
+      qualifications: [...prevDetails.qualifications, ""]
+    }));
+  };
+
+  const removeQualification = (index) => {
+    setDoctorDetails(prevDetails => ({
+      ...prevDetails,
+      qualifications: prevDetails.qualifications.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -175,6 +198,42 @@ export default function DoctorProfile() {
         placeholder="Specialty"
         autoComplete="off"
       />
+
+      {/* Qualifications Section */}
+      <div className="mb-3">
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-lg font-medium text-blue-700">Qualifications</label>
+          <button
+            type="button"
+            onClick={addQualification}
+            className="text-blue-600 hover:text-blue-800 text-sm"
+          >
+            + Add Qualification
+          </button>
+        </div>
+        {doctorDetails.qualifications.map((qualification, index) => (
+          <div key={index} className="flex gap-2 mb-2">
+            <input
+              value={qualification}
+              onChange={(e) => handleQualificationChange(index, e.target.value)}
+              className="flex-1 p-2 border border-blue-300 rounded-lg"
+              placeholder={`Qualification ${index + 1}`}
+              autoComplete="off"
+            />
+            {doctorDetails.qualifications.length > 1 && (
+              <button
+                type="button"
+                onClick={() => removeQualification(index)}
+                className="px-2 text-red-500 hover:text-red-700"
+              >
+                ×
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <h3 className="text-lg font-medium text-blue-700 mb-4">Personal Details</h3>
       <input
         name="experience"
         value={doctorDetails.experience}
