@@ -2,6 +2,57 @@ import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { z } from 'zod';
+
+export const doctorSchema = z.object({
+  specialty: z
+    .string()
+    .min(5, { message: "Specialty must be at least 5 characters long" }),
+
+  qualifications: z
+    .array(z.string().min(3, { message: "Qualification must be at least 3 characters long" }))
+    .min(1, { message: "At least one qualification is required" }),
+
+  experience: z
+    .string()
+    .refine((val) => !isNaN(val) && parseInt(val) > 0, { message: "Experience must be a positive number" }),
+
+  contactNumber: z
+    .string()
+    .length(10, { message: "Contact number must be exactly 10 digits" })
+    .regex(/^[0-9]+$/, { message: "Contact number must be numeric" }),
+
+  consultationFee: z
+    .string()
+    .refine((val) => !isNaN(val) && parseFloat(val) > 0, { message: "Consultation fee must be a positive number" }),
+
+  clinicAddress: z.object({
+    street: z
+      .string()
+      .min(5, { message: "Street address must be at least 5 characters long" }),
+
+    city: z
+      .string()
+      .min(3, { message: "City must be at least 3 characters long" }),
+
+    state: z
+      .string()
+      .min(3, { message: "State must be at least 3 characters long" }),
+
+    postalCode: z
+      .string()
+      .length(6, { message: "Postal Code must be exactly 6 digits" })
+      .regex(/^[0-9]+$/, { message: "Postal Code must be numeric" }),
+
+    country: z
+      .string()
+      .min(3, { message: "Country is required" }),
+  }),
+
+  biography: z
+    .string()
+    .min(5, { message: "Biography must be at least 5 characters long" }),
+});
 
 export default function DoctorProfile() {
   const navigate = useNavigate();
@@ -51,29 +102,49 @@ export default function DoctorProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
+    // Validate doctorDetails using the doctorSchema
+    const validationResult = doctorSchema.safeParse(doctorDetails);
+  
+    if (!validationResult.success) {
+      // If validation fails, show error messages for each field
+      validationResult.error.errors.forEach((err) => {
+        toast.error(err.message); // Show validation error message
+      });
+      setLoading(false);
+      return; // Stop form submission if validation fails
+    }
+  
     const formData = new FormData();
     formData.append("specialty", doctorDetails.specialty);
     formData.append("experience", doctorDetails.experience);
     formData.append("contactNumber", doctorDetails.contactNumber);
     formData.append("consultationFee", doctorDetails.consultationFee);
     formData.append("biography", doctorDetails.biography);
+  
+    // Append qualifications to formData
     doctorDetails.qualifications.forEach((qualification, index) => {
       formData.append(`qualifications[${index}]`, qualification);
     });
+  
+    // Append clinicAddress to formData
     Object.keys(doctorDetails.clinicAddress).forEach((key) => {
       formData.append(`clinicAddress[${key}]`, doctorDetails.clinicAddress[key]);
     });
+  
+    // Append image if present
     if (docImg) {
-      formData.append("image", docImg); 
+      formData.append("image", docImg);
     }
-
+  
     try {
+      // Sending the form data to the backend
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER_URL}/profile/create-doctor`,
         formData,
         { withCredentials: true }
       );
+  
       if (response.status === 201) {
         toast.success("Doctor profile created successfully");
         navigate("/login");
