@@ -2,6 +2,22 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { z } from 'zod';
+
+// Password validation schema
+const resetPasswordSchema = z.object({
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters long" })
+    .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
+    .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
+    .regex(/[0-9]/, { message: "Password must contain at least one number" })
+    .regex(/[^A-Za-z0-9]/, { message: "Password must contain at least one special character" }),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"]
+});
 
 const ResetPassword = () => {
   const [passwordDetails, setPasswordDetails] = useState({
@@ -14,28 +30,27 @@ const ResetPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const { password, confirmPassword } = passwordDetails;
-
-    if (!password || !confirmPassword) {
-      toast.error("All fields are necessary!");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      toast.error("Password and Confirm Password fields do not match.");
-      return;
-    }
-
-    setLoading(true);
-
+    
     try {
+      // Validate password details
+      const validationResult = resetPasswordSchema.safeParse(passwordDetails);
+      
+      if (!validationResult.success) {
+        validationResult.error.errors.forEach((err) => {
+          toast.error(err.message);
+        });
+        return;
+      }
+
+      setLoading(true);
+
       const response = await axios.post(
-        `${process.env.REACT_APP_SERVER_URL}/auth/reset-password/${token}`,
-        { password }
+        `${import.meta.env.VITE_SERVER_URL}/auth/reset-password/${token}`,
+        { password: passwordDetails.password }
       );
+
       if (response.status === 200) {
-        toast.success("Your password has been reset!");
+        toast.success("Your password has been reset successfully!");
         setTimeout(() => {
           navigate("/login");
         }, 1000);
@@ -78,6 +93,9 @@ const ResetPassword = () => {
               className="w-full border border-blue-300 rounded-lg bg-blue-50 p-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your new password"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Password must contain at least 8 characters, including uppercase, lowercase, numbers, and special characters.
+            </p>
           </div>
 
           <div>
@@ -106,7 +124,12 @@ const ResetPassword = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            disabled={loading}
+            className={`w-full bg-blue-600 text-white py-3 rounded-lg font-semibold transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300 ${
+              loading 
+                ? 'opacity-50 cursor-not-allowed' 
+                : 'hover:bg-blue-700'
+            }`}
           >
             {loading ? "Resetting..." : "Reset Password"}
           </button>
