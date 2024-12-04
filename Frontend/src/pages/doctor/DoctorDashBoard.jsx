@@ -88,7 +88,9 @@ export const DoctorDashBoard = () => {
                       <p className='text-gray-800 font-medium'>{item.patientData.userName}</p>
                       <p className='text-gray-600'>{formatDate(item.appointmentData.slotDate)}</p>
                     </div>
-                    <div className='text-green-400 text-lg'>pending</div>
+                    <div className={`text-lg ${item.appointmentData.cancel ? 'text-red-400' : 'text-green-400'}`}>
+                      {item.appointmentData.cancel ? 'cancelled' : 'pending'}
+                    </div>
                   </div>
                 ))}
               </div>

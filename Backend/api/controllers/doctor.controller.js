@@ -104,14 +104,24 @@ const appointmentsDoctor = async (req, res) => {
 
 const completeAppointment = async (req, res) => {
   try {
-    const { userID, appointmentID } = req.body;
+    const { userID } = req;
+    const { appointmentID } = req.body;
+    
+    const doctorProfile = await DoctorProfile.findOne({ userID: userID });
+    if (!doctorProfile) {
+      return res.status(404).json({ success: false, message: 'Doctor profile not found' });
+    }
+
     const appointmentData = await Appointment.findById(appointmentID);
-   
-    if (appointmentData && appointmentData.doctorID.toString() === userID.toString()) {
-      await Appointment.findByIdAndUpdate(appointmentID, { isCompleted: true })
-      return res.json({ success: true, message: 'Appointment Completed' })
+    if (!appointmentData) {
+      return res.status(404).json({ success: false, message: 'Appointment not found' });
+    }
+    
+    if (appointmentData.doctorID.toString() === doctorProfile._id.toString()) {
+      await Appointment.findByIdAndUpdate(appointmentID, { isCompleted: true });
+      return res.status(200).json({ success: true, message: 'Appointment Completed' });
     } else {
-      return res.json({ success: false, message: 'Mark Failed' })
+      return res.status(403).json({ success: false, message: 'Not authorized to modify this appointment' });
     }
 
   } catch (error) {

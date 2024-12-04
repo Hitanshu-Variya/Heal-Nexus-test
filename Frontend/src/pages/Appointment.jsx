@@ -2,26 +2,55 @@ import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 Modal.setAppElement("#root");
 
 const Appointment = () => {
-  const [doctorData, setDoctorData] = useState(null); // Updated to null to match the first code block
-  const [loading, setLoading] = useState(true); // Loading state
+  const [doctorData, setDoctorData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [bookedSlots, setBookedSlots] = useState([]);
   const { id } = useParams();
+
+  const fetchBookedSlots = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL}/appointment/booked-slots/${id}`,
+        { withCredentials: true }
+      );
+
+      if (response.status === 200) {
+        setBookedSlots(response.data.bookedSlots);
+      }
+    } catch (error) {
+      console.error("Error fetching booked slots:", error);
+      toast.error("Failed to fetch booked slots. Please try again.");
+    }
+  };
 
   useEffect(() => {
     const fetchDoctorDetails = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_SERVER_URL}/profile/get-doctor/${id}`,
-          { withCredentials: true }
-        );
-        if (response.status === 200) {
-          setDoctorData(response.data.response);
+        const [doctorResponse, bookedSlotsResponse] = await Promise.all([
+          axios.get(
+            `${process.env.REACT_APP_SERVER_URL}/profile/get-doctor/${id}`,
+            { withCredentials: true }
+          ),
+          axios.get(
+            `${process.env.REACT_APP_SERVER_URL}/appointment/booked-slots/${id}`,
+            { withCredentials: true }
+          )
+        ]);
+
+        if (doctorResponse.status === 200) {
+          setDoctorData(doctorResponse.data.response);
+        }
+        
+        if (bookedSlotsResponse.status === 200) {
+          setBookedSlots(bookedSlotsResponse.data.bookedSlots);
         }
       } catch (error) {
-        console.error("Error fetching user details:", error);
+        console.error("Error fetching details:", error);
       } finally {
         setLoading(false);
       }
@@ -49,7 +78,28 @@ const Appointment = () => {
     setSelectedSlot("");
   };
 
+  const isSlotAvailable = (date, time) => {
+    const bookedSlot = bookedSlots.find(
+      slot => slot.slotDate === date && slot.slotTime === time
+    );
+    
+    if (!bookedSlot) {
+      return { available: true, status: "Available" };
+    } else if (bookedSlot.cancel === true && bookedSlot.payment === false) {
+      return { available: true, status: "Available" };
+    } else if (bookedSlot.payment === false) {
+      return { available: false, status: "Not available" };
+    } else {
+      return { available: false, status: "Booked" };
+    }
+  };
+
   const handleSlotClick = (slot) => {
+    const { available, status } = isSlotAvailable(doctorSlots[selectedDayIndex].date, slot);
+    if (!available) {
+      toast.error(`This slot is ${status}!`);
+      return;
+    }
     setSelectedSlot(slot);
   };
 
@@ -63,6 +113,12 @@ const Appointment = () => {
 
   const confirmBooking = async () => {
     try {
+      if (!isSlotAvailable(doctorSlots[selectedDayIndex].date, selectedSlot)) {
+        setIsModalOpen(false);
+        toast.error("This slot has just been booked by someone else. Please select another slot.");
+        return;
+      }
+
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER_URL}/appointment/book-appointment`,
         {
@@ -76,9 +132,15 @@ const Appointment = () => {
       if (response.status === 201) {
         setIsModalOpen(false);
         setIsSuccessModalOpen(true);
+        await fetchBookedSlots();
       }
     } catch (error) {
-      alert("Error booking appointment. Please try again.");
+      setIsModalOpen(false);
+      if (error.response?.status === 400) {
+        toast.error(error.response.data.message || "Slot is already booked!");
+      } else {
+        toast.error("Error booking appointment. Please try again.");
+      }
       console.error("Error booking appointment:", error);
     }
   };
@@ -117,7 +179,7 @@ const Appointment = () => {
 
         <p className="text-gray-500 mt-2 text-center">{doctorData.biography}</p>
         <p className="text-lg font-semibold text-gray-800 mt-4">
-          Appointment Fee: ₹{doctorData.consultationFee}
+          Appointment Fee: &#8377; {doctorData.consultationFee}
         </p>
       </div>
 
@@ -154,17 +216,32 @@ const Appointment = () => {
           Select a Time Slot
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {doctorSlots[selectedDayIndex].slots.map((slot, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleSlotClick(slot)}
-              className={`p-2 border rounded-md text-center ${
-                selectedSlot === slot ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"
-              }`}
-            >
-              {slot}
-            </button>
-          ))}
+          {doctorSlots[selectedDayIndex].slots.map((slot, idx) => {
+            const { available, status } = isSlotAvailable(doctorSlots[selectedDayIndex].date, slot);
+            
+            return (
+              <button
+                key={idx}
+                onClick={() => handleSlotClick(slot)}
+                disabled={!available}
+                className={`
+                  p-2 border rounded-md text-center transition-colors
+                  ${
+                    available 
+                      ? selectedSlot === slot
+                        ? "bg-blue-600 text-white"
+                        : "bg-green-100 text-green-800 hover:bg-green-200"
+                      : status === "Not available"
+                        ? "bg-yellow-100 text-yellow-800 cursor-not-allowed"
+                        : "bg-red-100 text-red-800 cursor-not-allowed"
+                  }
+                `}
+              >
+                {slot}
+                {!available && <span className="block text-xs">{status}</span>}
+              </button>
+            );
+          })}
         </div>
       </div>
 
