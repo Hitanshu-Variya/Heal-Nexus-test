@@ -63,9 +63,11 @@ const Appointment = () => {
 
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
   const doctorSlots = [
-    { date: "21_11_2024", slots: ["10:00 AM", "11:00 AM", "2:00 PM", "4:00 PM"] },
-    { date: "22_11_2024", slots: ["9:00 AM", "12:00 PM", "3:00 PM"] },
-    { date: "23_11_2024", slots: ["10:00 AM", "1:00 PM", "5:00 PM"] },
+    { date: "10_12_2024", slots: ["10:00 AM", "11:00 AM", "2:00 PM", "4:00 PM"] },
+    { date: "11_12_2024", slots: ["9:00 AM", "12:00 PM", "3:00 PM"] },
+    { date: "12_12_2024", slots: ["10:00 AM", "1:00 PM", "5:00 PM", "7:00 PM"] },
+    { date: "13_12_2024", slots: ["10:00 AM", "1:00 PM", "5:00 PM", "7:00 PM"] },
+    { date: "14_12_2024", slots: ["10:00 AM", "1:00 PM", "5:00 PM", "7:00 PM"] },
   ];
 
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
