@@ -11,7 +11,6 @@ const App = () => {
   return (
     <>
     <div>
-
       <Toaster />
       <AuthRoutes />
       <ProfileRoute/> 

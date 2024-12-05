@@ -106,13 +106,13 @@ export function Appbar() {
           ALL DOCTORS
         </NavLink>
         <NavLink
-          to="/about-us"
+          to="/user-about-us"
           className={({ isActive }) => isActive ? 'text-blue-600 border-b-2 border-blue-600' : 'hover:text-blue-600 hover:border-b-2 border-transparent'}
         >
           ABOUT
         </NavLink>
         <NavLink
-          to="/team"
+          to="/user-team"
           className={({ isActive }) => isActive ? 'text-blue-600 border-b-2 border-blue-600' : 'hover:text-blue-600 hover:border-b-2 border-transparent'}
         >
           OUR-TEAM

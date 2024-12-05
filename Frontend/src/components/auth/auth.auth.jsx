@@ -64,7 +64,7 @@ export function Auth({ type }) {
       else {
         // Handle other types of errors (e.g., server or network errors)
         const errorMessage =
-          error.response?.data?.error || "An error occurred. Please try again.";
+          error.response?.data?.message || "An error occurred. Please try again.";
         toast.error(errorMessage);
       }
     } finally {
@@ -238,7 +238,7 @@ function Inputbox({ placeholder, title, type, value, onChange }) {
 function RegisterAs({ onRoleChange }) {
   return (
     <div className="mt-2">
-      {["Admin", "Patient", "Doctor", "Pharmacist", "Lab Technician"].map((role) => (
+      {["Patient", "Doctor", "Pharmacist", "Lab Technician"].map((role) => (
         <label key={role} className="flex items-center mb-2">
           <input
             type="radio"

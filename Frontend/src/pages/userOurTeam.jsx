@@ -1,9 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
 import { Footer } from "./landingPage";
-
-
 
 const teamMembers = [
   { name: 'Zeel Danani', id: '202201507', image: '/assets/zeel.png' },
@@ -18,9 +15,7 @@ const teamMembers = [
   { name: 'Prof. Saurabh Tiwary', id: 'Mentor', image: '/assets/prof.saurabh tiwary.png'},
 ];
 
-
-
-const OurTeam = () => {
+const UserOurTeam = () => {
   const navigate = useNavigate();
 
   return (
@@ -89,7 +84,7 @@ const Appbar = () => {
 
       {/* Go to Home Page Button */}
       <button
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/patient-dashboard")}
         className="px-4 py-2 text-white bg-indigo-600 rounded-full hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105 text-sm sm:text-base"
       >
         Go to Home
@@ -98,4 +93,4 @@ const Appbar = () => {
   );
 };
 
-export default OurTeam;
+export default UserOurTeam;
