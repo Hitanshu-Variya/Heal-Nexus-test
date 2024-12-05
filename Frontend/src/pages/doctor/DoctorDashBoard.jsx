@@ -23,7 +23,8 @@ export const DoctorDashBoard = () => {
         });
   
         if (response.status === 200) {
-          setTotalAppointments(response.data.allAppointmentsData.length);
+          console.log('Appointments data:', response.data.allAppointmentsData);
+          setTotalAppointments(response.data.allAppointmentsData.filter(appointment => !appointment.appointmentData.cancel && !appointment.appointmentData.isCompleted).length);
           setLatestAppointments(response.data.allAppointmentsData);
           setTotalEarnings(response.data.totalAmount);
         }
@@ -33,7 +34,7 @@ export const DoctorDashBoard = () => {
     };
 
     getTotalAppointments();
-  });
+  }, []);
 
   function formatDate(dateString) {
     const [day, month, year] = dateString.split("_");

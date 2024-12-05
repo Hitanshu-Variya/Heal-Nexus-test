@@ -86,19 +86,20 @@ const WelcomeEmailTemplate = `<!DOCTYPE html>
         </div>
         <div style="color: white;">
             <p style="margin-top: 20px; font-size: x-large;">Welcome, {Username}</p>
-            <p>Welcome to Heal Nexus! We're excited to have you on board.</p>
-            <p>With Heal Nexus, managing your finances has never been easier. Track your spending, set budgets, and achieve your financial goals—all in one place.</p>
+            <p>Welcome to Heal Nexus! We're thrilled to have you on board.</p>
+            <p>With Heal Nexus, accessing and comparing healthcare providers has never been easier. Discover services, book appointments, and make informed decisions—all in one place.</p>
             <p>Here's what you can do:</p>
             <div style="text-align: center; margin: 20px; color: aliceblue;">
-                <p>Track expenses and categorize them effortlessly</p>
-                <p>Create budgets and stay on top of your finances</p>
-                <p>Generate reports to better understand your spending habits</p>
-                <p>Get insights and tips to improve your financial well-being</p>
+                <p>Search and compare healthcare providers seamlessly</p>
+                <p>Book appointments with doctors, labs, and other specialists</p>
+                <p>Access personalized health insights and recommendations</p>
+                <p>Streamline your healthcare journey with ease</p>
             </div>
-            <p style="margin-top: 20px;">Start exploring by logging into your account and setting up your first budget.</p>
+            <p style="margin-top: 20px;">Start exploring by logging into your account and booking your first appointment.</p>
             <p style="margin-top: 20px;">If you need any assistance, feel free to reach out to our support team.</p>
             <p style="margin-top: 20px;">Best regards,<br>Heal Nexus Team</p>
         </div>
+
         <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
             <p>This is an automated message, please do not reply to this email.</p>
         </div>
