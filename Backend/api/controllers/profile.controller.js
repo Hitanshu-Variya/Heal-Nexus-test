@@ -145,21 +145,22 @@ export const createDoctorProfile = async (req, res) => {
 
 export const getDoctorProfile = async (req, res) => {
   try {
-    const doctorProfile = await DoctorProfile.findById(req.params.id);
-    const doctoruserdata = await User.findById(doctorProfile.userID);
+    const {userID} = req;
+    const doctoruserdata = await User.findById(userID);
+    const doctorProfile = await DoctorProfile.find({userID: userID});
 
     const response = { 
       userName: doctoruserdata.userName,
       email: doctoruserdata.email,
-      specialty: doctorProfile.specialty,
-      qualifications: doctorProfile.qualifications,
-      experience: doctorProfile.experience,
-      contactNumber: doctorProfile.contactNumber,
-      clinicAddress: doctorProfile.clinicAddress, 
-      ratings: doctorProfile.ratings,
-      biography: doctorProfile.biography,
-      consultationFee: doctorProfile.consultationFee,
-      image: doctorProfile.image
+      specialty: doctorProfile[0].specialty,
+      qualifications: doctorProfile[0].qualifications,
+      experience: doctorProfile[0].experience,
+      contactNumber: doctorProfile[0].contactNumber,
+      clinicAddress: doctorProfile[0].clinicAddress, 
+      ratings: doctorProfile[0].ratings,
+      biography: doctorProfile[0].biography,
+      consultationFee: doctorProfile[0].consultationFee,
+      image: doctorProfile[0].image
     };
 
     const error = getErrorDetails('SUCCESS');
@@ -175,6 +176,7 @@ export const getDoctorProfile = async (req, res) => {
 
 export const updateDoctorProfile = async (req, res) => {
   try {
+    const {userID} = req;
     const { specialty, qualifications, experience, contactNumber, clinicAddress, ratings, biography, consultationFee } = req.body;
     const oldDoctorProfile = {
       specialty,
@@ -184,15 +186,23 @@ export const updateDoctorProfile = async (req, res) => {
       clinicAddress, 
       ratings, 
       biography, 
-      consultationFee
+      consultationFee,
     };
 
-    await DoctorProfile.findByIdAndUpdate(
-      req.params.id,
-      oldDoctorProfile,
-      { new: true, runValidators: true }
-    );
+    if (req.file) {
+      try {
+        const imageUploadResponse = await cloudinary.uploader.upload(req.file.path, {
+          resource_type: "auto",
+        });
+        const imageUrl = imageUploadResponse.secure_url;
+        oldDoctorProfile.image = imageUrl;
+      } catch (cloudinaryError) {
+        console.error("Cloudinary upload failed", cloudinaryError);
+        throw new Error("Image upload failed. Please try again.");
+      }
+    }
 
+    await DoctorProfile.findOneAndUpdate({userID: userID}, oldDoctorProfile);
     const error = getErrorDetails('SUCCESS');
     res.status(error.code).json({
       message: 'Doctor profile Updated successfully',
