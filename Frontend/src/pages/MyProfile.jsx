@@ -2,49 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { Appbar } from './dashBoard';
-import { z } from 'zod';
+import { patientSchema } from './Profile/Roles/PatientProfile';
 
-// Define the validation schema
-const patientSchema = z.object({
-    name: z.string().min(3, "Name must be at least 3 characters long"),
-    age: z.string()
-        .regex(/^\d+$/, { message: "Age must be a number" })
-        .refine((val) => parseInt(val) > 0, { message: "Age must be a positive number" }),
-    email: z.string().email("Invalid email format"),
-    gender: z.enum(["Male", "Female"], { message: "Gender must be either 'Male' or 'Female'" }),
-    contactNumber: z.string()
-        .length(10, { message: "Contact number must be exactly 10 digits" })
-        .regex(/^\d+$/, { message: "Contact number must be numeric" }),
-    emergencyContact: z.object({
-        name: z.string().min(3, { message: "Emergency contact name must be at least 3 characters long" }),
-        relationship: z.string().min(3, { message: "Relationship must be at least 3 characters long" }),
-        contactNumber: z.string()
-            .length(10, { message: "Emergency contact number must be exactly 10 digits" })
-            .regex(/^\d+$/, { message: "Emergency contact number must be numeric" }),
-    }),
-    address: z.object({
-        street: z.string().min(3, { message: "Street address must be at least 3 characters long" }),
-        city: z.string().min(3, { message: "City must be at least 3 characters long" }),
-        state: z.string().min(3, { message: "State must be at least 3 characters long" }),
-        postalCode: z.string()
-            .length(6, { message: "Postal Code must be exactly 6 digits" })
-            .regex(/^\d+$/, { message: "Postal Code must be numeric" }),
-        country: z.string().min(3, { message: "Country must be at least 3 characters long" }),
-    }),
-    medicalHistory: z.array(z.string()),
-});
-
-// Image validation schema
-const imageSchema = z.object({
-    image: z.instanceof(File)
-        .refine(file => file.size <= 5 * 1024 * 1024, {
-            message: 'Image size must be less than 5MB'
-        })
-        .refine(file => ['image/jpeg', 'image/png', 'image/jpg'].includes(file.type), {
-            message: 'Only .jpg, .jpeg, and .png formats are supported'
-        })
-        .optional()
-});
+// Assuming the patientSchema is already defined as in your example
 
 const MyProfile = () => {
     const [userdata, setuserdata] = useState(null);
@@ -62,36 +22,33 @@ const MyProfile = () => {
                     setuserdata(response.data);
                 }
             } catch (error) {
-                console.error('Error fetching profile data', error);
-                toast.error("Failed to fetch profile data");
+                console.error('Error in Logging out', error);
             }
         };
 
         fetchProfileData();
     }, []);
 
-    const updateUserProfileData = async () => {
+    // Function to validate the data using zod schema
+    const validateUserProfile = (data) => {
         try {
-            // Validate image if present
-            if (image) {
-                const imageValidation = imageSchema.safeParse({ image });
-                if (!imageValidation.success) {
-                    imageValidation.error.errors.forEach(err => {
-                        toast.error(err.message);
-                    });
-                    return;
-                }
-            }
+            patientSchema.parse(data);
+            return true;
+        } catch (error) {
+            // Loop through validation errors and show toast.error for each field
+            error.errors.forEach((err) => {
+                toast.error(`${err.path[0]}: ${err.message}`);
+            });
+            return false;
+        }
+    };
 
-            // Validate profile data
-            const validationResult = patientSchema.safeParse(userdata);
-            if (!validationResult.success) {
-                validationResult.error.errors.forEach(err => {
-                    toast.error(err.message);
-                });
-                return;
-            }
+    const updateUserProfileData = async () => {
+        if (!validateUserProfile(userdata)) {
+            return; // Stop if validation fails
+        }
 
+        try {
             const formData = new FormData();
 
             formData.append("age", userdata.age);
@@ -106,16 +63,13 @@ const MyProfile = () => {
             formData.append("address[state]", userdata.address.state);
             formData.append("address[postalCode]", userdata.address.postalCode);
             formData.append("address[country]", userdata.address.country);
-            
             if (image) {
                 formData.append("image", image);
             }
 
-            const response = await axios.put(
-                `${process.env.REACT_APP_SERVER_URL}/profile/update-patient`, 
-                formData, 
-                { withCredentials: true }
-            );
+            const response = await axios.put(`${process.env.REACT_APP_SERVER_URL}/profile/update-patient`, formData, {
+                withCredentials: true
+            });
 
             if (response.status === 200) {
                 toast.success("Profile updated successfully!");
@@ -124,8 +78,7 @@ const MyProfile = () => {
                 window.location.reload();
             }
         } catch (error) {
-            console.error('Error updating profile:', error);
-            toast.error(error.response?.data?.message || "Failed to update profile");
+            console.error('Error in Logging out', error);
         }
     };
 
@@ -164,7 +117,7 @@ const MyProfile = () => {
                             )}
                         </div>
                         <div className="flex-1">
-                            
+                           
                             <p className="text-gray-500">Age: {userdata?.age}</p>
                         </div>
                     </div>
@@ -184,7 +137,9 @@ const MyProfile = () => {
                                     <input
                                         type="text"
                                         value={userdata?.contactNumber}
-                                        onChange={(e) => setuserdata((prev) => ({ ...prev, contactNumber: e.target.value }))}
+                                        onChange={(e) =>
+                                            setuserdata((prev) => ({ ...prev, contactNumber: e.target.value }))
+                                        }
                                         className="bg-gray-100 w-2/3 p-1 rounded"
                                     />
                                 ) : (
@@ -237,7 +192,10 @@ const MyProfile = () => {
                                             onChange={(e) =>
                                                 setuserdata((prev) => ({
                                                     ...prev,
-                                                    emergencyContact: { ...prev.emergencyContact, [key]: e.target.value },
+                                                    emergencyContact: {
+                                                        ...prev.emergencyContact,
+                                                        [key]: e.target.value,
+                                                    },
                                                 }))
                                             }
                                             className="bg-gray-100 w-2/3 p-1 rounded"
@@ -274,35 +232,34 @@ const MyProfile = () => {
                                         </li>
                                     ))
                                 ) : (
-                                    <li className="text-gray-500">No medical history provided</li>
+                                    <li className="text-gray-500">No history available</li>
                                 )}
                             </ul>
                         )}
                     </div>
 
-                    <div className="flex justify-between mt-4">
+                    <div className="mt-4 flex justify-between items-center">
                         {isEdit ? (
-                            <button
-                                onClick={() => setIsedit(false)}
-                                className="bg-gray-500 text-white px-4 py-2 rounded"
-                            >
-                                Cancel
-                            </button>
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => setIsedit(false)}
+                                    className="text-red-600 font-semibold px-4 py-2 rounded border"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={updateUserProfileData}
+                                    className="bg-blue-500 text-white font-semibold px-4 py-2 rounded"
+                                >
+                                    Save
+                                </button>
+                            </div>
                         ) : (
                             <button
                                 onClick={() => setIsedit(true)}
-                                className="bg-blue-500 text-white px-4 py-2 rounded"
+                                className="bg-blue-500 text-white font-semibold px-4 py-2 rounded"
                             >
-                                Edit Profile
-                            </button>
-                        )}
-
-                        {isEdit && (
-                            <button
-                                onClick={updateUserProfileData} // Calling the function here
-                                className="bg-green-500 text-white px-4 py-2 rounded"
-                            >
-                                Save Changes
+                                Edit
                             </button>
                         )}
                     </div>
