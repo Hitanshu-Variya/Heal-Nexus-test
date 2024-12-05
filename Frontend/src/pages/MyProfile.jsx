@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 import { Appbar } from './dashBoard';
 import { z } from 'zod';
 
