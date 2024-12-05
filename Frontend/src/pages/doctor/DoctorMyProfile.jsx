@@ -334,7 +334,7 @@ const DoctorMyProfile = () => {
                                         value={userdata.biography}
                                         onChange={handleChange}
                                         rows={4}
-                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                        className="block w-full bg-slate-500 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                     />
                                 ) : (
                                     <p className="text-gray-900">{userdata.biography}</p>
