@@ -174,6 +174,33 @@ export const getDoctorProfile = async (req, res) => {
   }
 };
 
+export const getDoctorProfileById = async (req, res) => {
+  try {
+    const doctorProfile = await DoctorProfile.findById(req.params.id);
+
+    const response = { 
+      specialty: doctorProfile.specialty,
+      qualifications: doctorProfile.qualifications,
+      experience: doctorProfile.experience,
+      contactNumber: doctorProfile.contactNumber,
+      clinicAddress: doctorProfile.clinicAddress, 
+      ratings: doctorProfile.ratings,
+      biography: doctorProfile.biography,
+      consultationFee: doctorProfile.consultationFee,
+      image: doctorProfile.image
+    };
+
+    const error = getErrorDetails('SUCCESS');
+    res.status(error.code).json({
+      response
+    });
+
+  } catch (error) {
+    const error_response = getErrorDetails('INTERNAL_SERVER_ERROR', 'Error in getting the profile for Doctor');
+    return res.status(error_response.code).json({message : error_response.message});
+  }
+};
+
 export const updateDoctorProfile = async (req, res) => {
   try {
     const {userID} = req;

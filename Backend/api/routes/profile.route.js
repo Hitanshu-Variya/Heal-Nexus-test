@@ -13,6 +13,7 @@ import {
   createPharmacistProfile,
   updatePharmacistProfile,
   getPharmacistProfile,
+  getDoctorProfileById
 } from '../controllers/profile.controller.js';
 import upload from '../../middleware/multer.js';
 
@@ -25,6 +26,7 @@ router.get('/get-patient', verifyToken, getPatientProfile);
 router.post('/create-doctor', verifyToken, upload.single('image'), createDoctorProfile);
 router.put('/update-doctor', verifyToken,  upload.single('image'), updateDoctorProfile);
 router.get('/get-doctor', verifyToken, getDoctorProfile);
+router.get('/get-doctor-by-id/:id', verifyToken, getDoctorProfileById);
 
 router.post('/create-lab-technician', verifyToken, upload.single('image'), createLabTechnicianProfile);
 router.put('/update-lab-technician', verifyToken,  upload.single('image'), updateLabTechnicianProfile);

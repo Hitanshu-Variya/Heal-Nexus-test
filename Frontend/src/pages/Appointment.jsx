@@ -33,7 +33,7 @@ const Appointment = () => {
       try {
         const [doctorResponse, bookedSlotsResponse] = await Promise.all([
           axios.get(
-            `${process.env.REACT_APP_SERVER_URL}/profile/get-doctor/${id}`,
+            `${process.env.REACT_APP_SERVER_URL}/profile/get-doctor-by-id/${id}`,
             { withCredentials: true }
           ),
           axios.get(
